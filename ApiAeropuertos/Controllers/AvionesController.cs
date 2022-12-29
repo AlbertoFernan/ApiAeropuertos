@@ -69,7 +69,7 @@ namespace ApiAeropuertos.Controllers
         {
             if (p == null)
             {
-                return BadRequest("Debe proporcionar un producto");
+                return BadRequest("Debe enviar un vuelo");
             }
 
             if (Validate(p, out List<string> errores))
@@ -94,39 +94,7 @@ namespace ApiAeropuertos.Controllers
             }
 
         }
-        private bool Validate(Partidas p, out List<string> errors)
-        {
-            errors = new List<string>();
-            if (string.IsNullOrWhiteSpace(p.Destino))
-            {
-                errors.Add("Escriba el nombre del producto.");
-            }
-
-            if (string.IsNullOrWhiteSpace(p.Vuelo))
-            {
-                errors.Add("Seleccione la categoria del producto");
-            }
-            if (string.IsNullOrWhiteSpace(p.Puerta))
-            {
-                errors.Add("Seleccione la categoria del producto");
-            }
-
-            if (string.IsNullOrWhiteSpace(p.Status))
-            {
-                errors.Add("Seleccione la categoria del producto");
-            }
-
-          
-            if (repository.Get().Any(x => x.Vuelo == p.Vuelo && x.Id != p.Id))
-            {
-                errors.Add("Ya existe un producto con el mismo nombre");
-            }
-
-            
-
-            return errors.Count == 0;
-        }
-
+      
         public IActionResult Index()
         {
             return View();
@@ -151,13 +119,26 @@ namespace ApiAeropuertos.Controllers
                 }).FirstOrDefault();
             return Ok(Vuelo);
         }
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
 
+
+            var entidad = repository.GetById(id);
+            if (entidad == null)
+            {
+                return NotFound();
+            }
+
+            repository.Delete(entidad);
+            return Ok();
+        }
         [HttpPut]
         public IActionResult Put(Partidas p)
         {
             if (p == null)
             {
-                return BadRequest("No se indico el producto a modificar.");
+                return BadRequest("No se indico el vuelo a editar.");
             }
 
             if (Validate(p, out List<string> errores))
@@ -167,7 +148,7 @@ namespace ApiAeropuertos.Controllers
                 {
                     return NotFound();
                 }
-
+              
                 entidad.Puerta = p.Puerta;
                 entidad.Status = p.Status;
                 entidad.Tiempo = p.Tiempo;
@@ -182,6 +163,37 @@ namespace ApiAeropuertos.Controllers
                 return BadRequest(errores);
             }
         }
+
+        private bool Validate(Partidas p, out List<string> errors)
+        {
+            errors = new List<string>();
+            if (string.IsNullOrWhiteSpace(p.Destino))
+            {
+                errors.Add("Escriba el destino del vuelo.");
+            }
+
+            if (string.IsNullOrWhiteSpace(p.Vuelo))
+            {
+                errors.Add("ingrese un nombre de vuelo");
+            }
+            if (string.IsNullOrWhiteSpace(p.Puerta))
+            {
+                errors.Add("Seleccione la puerta");
+            }
+
+     
+
+
+            if (repository.Get().Any(x => x.Vuelo == p.Vuelo && x.Id != p.Id))
+            {
+                errors.Add("Ya existe un vuelo con el mismo nombre");
+            }
+
+
+
+            return errors.Count == 0;
+        }
+
 
     }
 }
