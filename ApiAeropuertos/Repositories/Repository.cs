@@ -32,7 +32,7 @@ namespace ApiAeropuertos.Repositories
             context.Remove(entidad);
             context.SaveChanges();
         }
-        public async Task Update(T entidad)
+        public void Update(T entidad)
         {
             context.Update(entidad);
             context.SaveChanges();
