@@ -62,10 +62,10 @@ namespace ApiAeropuertos.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public IActionResult Get()
         {
            
-            await filtrar();
+            //await filtrar();
             var data3 = repository.Get().OrderBy(x => x.Tiempo);
             return Ok(data3.Select(x => new Partidas { Id = x.Id, Vuelo = x.Vuelo, Destino = x.Destino, Status = x.Status, Puerta = x.Puerta, Tiempo = x.Tiempo }));
 
