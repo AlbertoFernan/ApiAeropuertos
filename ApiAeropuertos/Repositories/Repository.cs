@@ -10,7 +10,7 @@ namespace ApiAeropuertos.Repositories
         {
             this.context = context;
         }
-        public DbSet<T> Get()
+        public  DbSet<T> Get()
         {
             return context.Set<T>();
 
@@ -32,10 +32,11 @@ namespace ApiAeropuertos.Repositories
             context.Remove(entidad);
             context.SaveChanges();
         }
-        public void Update(T entidad)
+        public async Task Update(T entidad)
         {
             context.Update(entidad);
             context.SaveChanges();
+          
         }
     }
 }

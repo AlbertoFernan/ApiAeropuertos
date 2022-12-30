@@ -1,5 +1,6 @@
 ﻿using ApiAeropuertos.Models;
 using ApiAeropuertos.Repositories;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,55 +15,64 @@ namespace ApiAeropuertos.Controllers
 
         
 
-
-        Repository<Partidas> repository;
+     
+        public Repository<Partidas> repository;
         private readonly sistem21_avionesafContext context;
         public AvionesController(sistem21_avionesafContext context)
         {
            
             this.context = context;
             repository = new(context);
+           
+
       
         }
-
-
-        [HttpGet]
-        public IActionResult Get()
+        
+        public async Task filtrar()
         {
 
+            var data2 =  repository.Get().OrderBy(x => x.Tiempo).ToList();
 
-            //DateTime fechaactual = DateTime.Now.Date;
-            //TimeSpan horaactual = DateTime.Now.TimeOfDay;
-            //var data = repository.Get();
-            //var cambios = data.Select(x => new Partidas { Id = x.Id, Vuelo = x.Vuelo, Destino = x.Destino, Status = x.Status, Puerta = x.Puerta, Tiempo=x.Tiempo });
+            DateTime fechaactual = DateTime.UtcNow;
 
-            //foreach (var item in cambios.ToList())
-            //{
+            foreach (var item in data2)
+            {
+               
+
+                if (item.Tiempo.Date == fechaactual.Date && item.Status.ToLower() == "on time")
+                {
+                    if (((item.Tiempo.TimeOfDay - fechaactual.TimeOfDay).TotalMinutes) < 10)
+                    {
+                        item.Status = "On Boarding";
+                        await repository.Update(item);
+                    }
 
 
-            //    if (item.Tiempo.Date < fechaactual)
-            //    {
 
-            //        item.Status = "On Boarding";
-            //        repository.Update(item);
+                }
+                else if (item.Tiempo.Date < fechaactual.Date && item.Status.ToLower() == "on time")
+                {
+                    item.Status = "On Boarding";
+                    await repository.Update(item);
+                }
 
 
-            //    }
-            //    else if (item.Tiempo.Date == fechaactual)
-            //    {
-            //        if ((item.Tiempo.TimeOfDay - horaactual).TotalMinutes < 10)
-            //        {
-            //            item.Status = "On Boarding";
-            //            repository.Update(item);
-            //        }
-            //    }
 
-            //}
-
-            var data2 = repository.Get().OrderBy(x => x.Tiempo);
-            return Ok(data2.Select(x => new Partidas { Id = x.Id,  Vuelo = x.Vuelo, Destino=x.Destino,Status=x.Status,  Puerta=x.Puerta, Tiempo=x.Tiempo }));
-       
+            }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
+        {
+           
+            await filtrar();
+            var data3 = repository.Get().OrderBy(x => x.Tiempo);
+            return Ok(data3.Select(x => new Partidas { Id = x.Id, Vuelo = x.Vuelo, Destino = x.Destino, Status = x.Status, Puerta = x.Puerta, Tiempo = x.Tiempo }));
+
+
+        }
+
+       
 
         [HttpPost]
         public IActionResult Post(Partidas p)
