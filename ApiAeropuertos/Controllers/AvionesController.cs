@@ -28,38 +28,38 @@ namespace ApiAeropuertos.Controllers
       
         }
         
-        public async Task filtrar()
-        {
+        //public async Task filtrar()
+        //{
 
-            var data2 =  repository.Get().OrderBy(x => x.Tiempo).ToList();
+        //    var data2 =  repository.Get().OrderBy(x => x.Tiempo).ToList();
 
-            DateTime fechaactual = DateTime.UtcNow;
+        //    DateTime fechaactual = DateTime.UtcNow;
 
-            foreach (var item in data2)
-            {
+        //    foreach (var item in data2)
+        //    {
                
 
-                if (item.Tiempo.Date == fechaactual.Date && item.Status.ToLower() == "on time")
-                {
-                    if (((item.Tiempo.TimeOfDay - fechaactual.TimeOfDay).TotalMinutes) < 10)
-                    {
-                        item.Status = "On Boarding";
-                        await repository.Update(item);
-                    }
+        //        if (item.Tiempo.Date == fechaactual.Date && item.Status.ToLower() == "on time")
+        //        {
+        //            if (((item.Tiempo.TimeOfDay - fechaactual.TimeOfDay).TotalMinutes) < 10)
+        //            {
+        //                item.Status = "On Boarding";
+        //                await repository.Update(item);
+        //            }
 
 
 
-                }
-                else if (item.Tiempo.Date < fechaactual.Date && item.Status.ToLower() == "on time")
-                {
-                    item.Status = "On Boarding";
-                    await repository.Update(item);
-                }
+        //        }
+        //        else if (item.Tiempo.Date < fechaactual.Date && item.Status.ToLower() == "on time")
+        //        {
+        //            item.Status = "On Boarding";
+        //            await repository.Update(item);
+        //        }
 
 
 
-            }
-        }
+        //    }
+        //}
 
         [HttpGet]
         public IActionResult Get()
