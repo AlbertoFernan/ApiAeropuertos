@@ -66,8 +66,8 @@ namespace ApiAeropuertos.Controllers
         {
            
             //await filtrar();
-            var data3 = repository.Get().OrderBy(x => x.Tiempo);
-            return Ok(data3.Select(x => new Partidas { Id = x.Id, Vuelo = x.Vuelo, Destino = x.Destino, Status = x.Status, Puerta = x.Puerta, Tiempo = x.Tiempo }));
+            var datosrepo = repository.Get().OrderBy(x => x.Tiempo);
+            return Ok(datosrepo.Select(x => new Partidas { Id = x.Id, Vuelo = x.Vuelo, Destino = x.Destino, Status = x.Status, Puerta = x.Puerta, Tiempo = x.Tiempo }));
 
 
         }
@@ -85,7 +85,7 @@ namespace ApiAeropuertos.Controllers
             if (Validate(p, out List<string> errores))
             {
                 //no hay errores
-                Partidas entidad = new()
+                Partidas vuelo = new()
                 {
                     
                       Destino=p.Destino,
@@ -95,7 +95,7 @@ namespace ApiAeropuertos.Controllers
                       Vuelo=p.Vuelo
                       
                 };
-                repository.Insert(entidad);
+                repository.Insert(vuelo);
                 return Ok();
             }
             else //tiene errores
@@ -134,13 +134,13 @@ namespace ApiAeropuertos.Controllers
         {
 
 
-            var entidad = repository.GetById(id);
-            if (entidad == null)
+            var vuelo = repository.GetById(id);
+            if (vuelo == null)
             {
                 return NotFound();
             }
 
-            repository.Delete(entidad);
+            repository.Delete(vuelo);
             return Ok();
         }
         [HttpPut]
@@ -153,18 +153,18 @@ namespace ApiAeropuertos.Controllers
 
             if (Validate(p, out List<string> errores))
             {
-                var entidad = repository.GetById(p.Id);
-                if (entidad == null)
+                var vuelo = repository.GetById(p.Id);
+                if (vuelo == null)
                 {
                     return NotFound();
                 }
-              
-                entidad.Puerta = p.Puerta;
-                entidad.Status = p.Status;
-                entidad.Tiempo = p.Tiempo;
-                entidad.Destino = p.Destino;
-                entidad.Vuelo = p.Vuelo;
-                repository.Update(entidad);
+
+                vuelo.Puerta = p.Puerta;
+                vuelo.Status = p.Status;
+                vuelo.Tiempo = p.Tiempo;
+                vuelo.Destino = p.Destino;
+                vuelo.Vuelo = p.Vuelo;
+                repository.Update(vuelo);
                 return Ok();
 
             }
@@ -179,24 +179,21 @@ namespace ApiAeropuertos.Controllers
             errors = new List<string>();
             if (string.IsNullOrWhiteSpace(p.Destino))
             {
-                errors.Add("Escriba el destino del vuelo.");
+                errors.Add("Especifique el destino del vuelo.");
             }
 
             if (string.IsNullOrWhiteSpace(p.Vuelo))
             {
-                errors.Add("ingrese un nombre de vuelo");
+                errors.Add("Ingrese una clave de vuelo");
             }
             if (string.IsNullOrWhiteSpace(p.Puerta))
             {
-                errors.Add("Seleccione la puerta");
+                errors.Add("Seleccione la puerta de salida");
             }
-
-     
-
 
             if (repository.Get().Any(x => x.Vuelo == p.Vuelo && x.Id != p.Id))
             {
-                errors.Add("Ya existe un vuelo con el mismo nombre");
+                errors.Add("Ya existe un vuelo con la misma clave");
             }
 
 
