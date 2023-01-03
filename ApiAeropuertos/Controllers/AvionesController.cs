@@ -110,29 +110,9 @@ namespace ApiAeropuertos.Controllers
             return View();
         }
 
-        [HttpGet("{id:int}")]
-        public IActionResult Get(int id)
-        {
-            var Vuelo = repository.Get().Where(x => x.Id == id)
-                .Select(x => new Partidas
-                {
-
-                   
-                    Id = x.Id,
-                    Destino=x.Destino,
-                    Vuelo=x.Vuelo,
-                    Puerta=x.Puerta,
-                    Status=x.Status,
-                Tiempo=x.Tiempo
-                    
-
-                }).FirstOrDefault();
-            return Ok(Vuelo);
-        }
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-
 
             var vuelo = repository.GetById(id);
             if (vuelo == null)
@@ -154,6 +134,7 @@ namespace ApiAeropuertos.Controllers
             if (Validate(p, out List<string> errores))
             {
                 var vuelo = repository.GetById(p.Id);
+
                 if (vuelo == null)
                 {
                     return NotFound();
@@ -196,9 +177,14 @@ namespace ApiAeropuertos.Controllers
                 errors.Add("Ya existe un vuelo con la misma clave");
             }
 
-
-
-            return errors.Count == 0;
+            if (errors.Count > 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
 
