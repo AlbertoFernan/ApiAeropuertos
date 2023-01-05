@@ -131,7 +131,7 @@ namespace ApiAeropuertos.Controllers
                 return BadRequest("No se indico el vuelo a editar.");
             }
 
-            if (Validate(v, out List<string> errores))
+            if (ValidateUpdate(v, out List<string> errores))
             {
                 var vuelo = repository.GetById(v.Id);
 
@@ -202,7 +202,6 @@ namespace ApiAeropuertos.Controllers
                 return true;
             }
         }
-
         private bool diff(DateTime x, DateTime v)
         {
             var diferencia = x.TimeOfDay.Subtract(v.TimeOfDay).TotalMinutes;
@@ -216,6 +215,41 @@ namespace ApiAeropuertos.Controllers
             }
         }
 
+        private bool ValidateUpdate(Partidas v, out List<string> errors)
+        {
+            errors = new List<string>();
+            if (string.IsNullOrWhiteSpace(v.Destino))
+            {
+                errors.Add("Especifique el destino del vuelo.");
+            }
+
+            if (string.IsNullOrWhiteSpace(v.Vuelo))
+            {
+                errors.Add("Ingrese una clave de vuelo.");
+            }
+            if (string.IsNullOrWhiteSpace(v.Puerta))
+            {
+                errors.Add("Seleccione la puerta de salida.");
+            }
+
+            if (repository.Get().Any(x => x.Vuelo == v.Vuelo && x.Id != v.Id))
+            {
+                errors.Add("Ya existe un vuelo con la misma clave.");
+            }
+
+            if (errors.Count > 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+         
+        
+     
 
     }
 }
