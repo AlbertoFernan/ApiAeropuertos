@@ -75,24 +75,24 @@ namespace ApiAeropuertos.Controllers
        
 
         [HttpPost]
-        public IActionResult Post(Partidas p)
+        public IActionResult Post(Partidas v)
         {
-            if (p == null)
+            if (v == null)
             {
-                return BadRequest("Debe enviar un vuelo");
+                return BadRequest("Debe enviar un vuelo.");
             }
 
-            if (Validate(p, out List<string> errores))
+            if (Validate(v, out List<string> errores))
             {
                 //no hay errores
                 Partidas vuelo = new()
                 {
                     
-                      Destino=p.Destino,
-                      Status=p.Status,
-                      Puerta=p.Puerta,
-                      Tiempo=p.Tiempo,
-                      Vuelo=p.Vuelo
+                      Destino=v.Destino,
+                      Status=v.Status,
+                      Puerta=v.Puerta,
+                      Tiempo=v.Tiempo,
+                      Vuelo=v.Vuelo
                       
                 };
                 repository.Insert(vuelo);
@@ -124,27 +124,27 @@ namespace ApiAeropuertos.Controllers
             return Ok();
         }
         [HttpPut]
-        public IActionResult Put(Partidas p)
+        public IActionResult Put(Partidas v)
         {
-            if (p == null)
+            if (v == null)
             {
                 return BadRequest("No se indico el vuelo a editar.");
             }
 
-            if (Validate(p, out List<string> errores))
+            if (Validate(v, out List<string> errores))
             {
-                var vuelo = repository.GetById(p.Id);
+                var vuelo = repository.GetById(v.Id);
 
                 if (vuelo == null)
                 {
                     return NotFound();
                 }
 
-                vuelo.Puerta = p.Puerta;
-                vuelo.Status = p.Status;
-                vuelo.Tiempo = p.Tiempo;
-                vuelo.Destino = p.Destino;
-                vuelo.Vuelo = p.Vuelo;
+                vuelo.Puerta = v.Puerta;
+                vuelo.Status = v.Status;
+                vuelo.Tiempo = v.Tiempo;
+                vuelo.Destino = v.Destino;
+                vuelo.Vuelo = v.Vuelo;
                 repository.Update(vuelo);
                 return Ok();
 
@@ -155,26 +155,42 @@ namespace ApiAeropuertos.Controllers
             }
         }
 
-        private bool Validate(Partidas p, out List<string> errors)
+        private bool Validate(Partidas v, out List<string> errors)
         {
             errors = new List<string>();
-            if (string.IsNullOrWhiteSpace(p.Destino))
+            if (string.IsNullOrWhiteSpace(v.Destino))
             {
                 errors.Add("Especifique el destino del vuelo.");
             }
 
-            if (string.IsNullOrWhiteSpace(p.Vuelo))
+            if (string.IsNullOrWhiteSpace(v.Vuelo))
             {
-                errors.Add("Ingrese una clave de vuelo");
+                errors.Add("Ingrese una clave de vuelo.");
             }
-            if (string.IsNullOrWhiteSpace(p.Puerta))
+            if (string.IsNullOrWhiteSpace(v.Puerta))
             {
-                errors.Add("Seleccione la puerta de salida");
+                errors.Add("Seleccione la puerta de salida.");
             }
 
-            if (repository.Get().Any(x => x.Vuelo == p.Vuelo && x.Id != p.Id))
+            if (repository.Get().Any(x => x.Vuelo == v.Vuelo && x.Id != v.Id))
             {
-                errors.Add("Ya existe un vuelo con la misma clave");
+                errors.Add("Ya existe un vuelo con la misma clave.");
+            }
+
+            if (repository.Get().Any(x => x.Puerta == v.Puerta && x.Tiempo.Date == v.Tiempo.Date && (x.Status.ToLower() != "cancelado" || x.Status.ToLower() != "en vuelo")) )
+            {
+                var lista = repository.Get().Select(x=>x).Where(x => x.Puerta == v.Puerta && x.Tiempo.Date == v.Tiempo.Date && (x.Status.ToLower() != "cancelado" || x.Status.ToLower() != "en vuelo"));
+                foreach (var item in lista)
+                {
+                    if (diff(item.Tiempo, v.Tiempo))
+                        {
+                        errors.Add("La puerta elegida esta ocupada a la hora ingresada.");
+                        break;
+                    }
+                 
+                   
+                }
+          
             }
 
             if (errors.Count > 0)
@@ -184,6 +200,19 @@ namespace ApiAeropuertos.Controllers
             else
             {
                 return true;
+            }
+        }
+
+        private bool diff(DateTime x, DateTime v)
+        {
+            var diferencia = x.TimeOfDay.Subtract(v.TimeOfDay).TotalMinutes;
+            if (Math.Abs(diferencia) < 60)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
