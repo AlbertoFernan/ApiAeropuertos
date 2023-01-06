@@ -172,10 +172,12 @@ namespace ApiAeropuertos.Controllers
                 errors.Add("Seleccione la puerta de salida.");
             }
 
-            if (repository.Get().Any(x => x.Vuelo == v.Vuelo && x.Id != v.Id))
+            if (repository.Get().Any(x => x.Vuelo.ToLower() == v.Vuelo.ToLower() && x.Id != v.Id))
             {
                 errors.Add("Ya existe un vuelo con la misma clave.");
             }
+
+
 
             if (repository.Get().Any(x => x.Puerta == v.Puerta && x.Tiempo.Date == v.Tiempo.Date && (x.Status.ToLower() != "cancelado" || x.Status.ToLower() != "en vuelo")) )
             {
@@ -232,7 +234,7 @@ namespace ApiAeropuertos.Controllers
                 errors.Add("Seleccione la puerta de salida.");
             }
 
-            if (repository.Get().Any(x => x.Vuelo == v.Vuelo && x.Id != v.Id))
+            if (repository.Get().Any(x => x.Vuelo.ToLower() == v.Vuelo.ToLower() && x.Id != v.Id))
             {
                 errors.Add("Ya existe un vuelo con la misma clave.");
             }
